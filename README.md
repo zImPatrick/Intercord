@@ -25,7 +25,7 @@ app.post("/api/discord", middleware({
     },
 
     // Sending back an embed 
-    "test": (data) => {
+    "hello": (data) => {
         return { // https://discord.com/developers/docs/interactions/slash-commands#interaction-response
             type: 4,
             data: {
