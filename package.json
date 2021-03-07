@@ -1,6 +1,6 @@
 {
   "name": "intercord",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "Use discord's interactions feature with this express middleware!",
   "main": "index.js",
   "scripts": {
