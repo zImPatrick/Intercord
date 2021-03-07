@@ -13,7 +13,7 @@
     "middleware"
   ],
   "author": "zImPatrick",
-  "license": "ISC",
+  "license": "Unlicense",
   "dependencies": {
     "tweetnacl": "^1.0.3"
   }

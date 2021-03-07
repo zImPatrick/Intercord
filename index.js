@@ -10,18 +10,27 @@ SETTINGS = {
 const nacl = require('tweetnacl');
 
 module.exports = (settings) => {
-    return (req, res, next) => {
+    if(settings["discord_public_key"] == null) throw new TypeError("No discord public key was specified")
+    return async (req, res, next) => {
         if (req.method !== 'POST') return next();
 
         const PUBLIC_KEY = settings["discord_public_key"];
         const signature = req.get('X-Signature-Ed25519');
         const timestamp = req.get('X-Signature-Timestamp');
 
-        const isVerified = nacl.sign.detached.verify(
-            Buffer.from(timestamp + req.rawBody),
-            Buffer.from(signature, 'hex'),
-            Buffer.from(PUBLIC_KEY, 'hex')
-        );
+        if(!signature || !timestamp) return res.status(400).end("No signature or timestamp")
+
+        var isVerified;
+
+        try {
+            isVerified = nacl.sign.detached.verify(
+                Buffer.from(timestamp + req.rawBody),
+                Buffer.from(signature, 'hex'),
+                Buffer.from(PUBLIC_KEY, 'hex')
+            );
+        } catch (e) {
+            return res.status(500).end(e);
+        }
 
         if(!isVerified) return res.status(401).end("Not authenticated");
 
@@ -30,7 +39,7 @@ module.exports = (settings) => {
 
         if(req.body["type"] == enums.InteractionType.ApplicationCommand) { // cmd received
             var cmd = settings["cmds"][req.body["data"]["name"]] || settings["cmds"][req.body["data"]["id"]];
-            var resp = cmd(req.body, req);
+            var resp = await cmd(req.body, req);
             if(typeof resp === "string") {
                 return res.json({
                     "type": enums.InteractionResponseType["ChannelMessageWithSource"],
